@@ -1,0 +1,50 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <JsonParserGeneratorRK.h>
+
+// This #include statement was automatically added by the Particle IDE.
+#include <Grove_Temperature_And_Humidity_Sensor.h>
+
+#define DELAY_TIME 30000 
+// define the pin to use to colect the Data from
+#define DHT_PIN D4
+
+DHT dht(DHT_PIN);
+double temp;
+double hum;
+
+//Gets the value from the data and stores it in variables temp and humidity
+void postEventPayload(double temp,double humidity){
+    JsonWriterStatic<256> jw;
+    {
+        JsonWriterAutoObject obj(&jw);
+        jw.insertKeyValue("temp",temp);
+        jw.insertKeyValue("hum",hum);
+    }
+    //publishes the two values which can be used to visualise later
+    Particle.publish("dht11",jw.getBuffer(),PRIVATE);
+
+}
+
+// ------------
+//setting the pin D4 as an input pin
+void setup() {
+
+	
+    dht.begin();
+    pinMode(DHT_PIN,INPUT);
+
+}
+
+//looping the code with a 30 second delay 
+//temperature gets stored in celcius
+//humidity gets stored in variable hum
+//values are inserted into a json file
+//time is delayed for 30 seconds
+void loop() {
+	// To blink the LED, first we'll turn it on...
+	temp=dht.getTempCelcius();
+	hum=dht.getHumidity();
+	postEventPayload(temp,hum);
+	delay(DELAY_TIME);
+	// And repeat!
+}
